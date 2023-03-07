@@ -37,12 +37,14 @@ architecture transmission of uart is
 	signal	i:integer:=0;	
 
 begin
+		
 		baud_gen: baudrate_gen generic map(434, 9)
 		port map(clk=>clk,reset=>reset,tick=>temp_s_tick);
 		
 		process(clk,reset)
 		begin
 			if rising_edge(clk) then
+			
 				if reset = '0' then 
 					curr_state <= idle;
 					tx_done_tick <= '0';
@@ -53,7 +55,7 @@ begin
 						when idle =>
 							tx<='1';
 							tx_done_tick<='0';
-							if((tx_start = '0')) then 
+							if((tx_start = '0') and (s_tick='1')) then 
 								curr_state <= start;
 							else
 								curr_state <= idle;
@@ -81,14 +83,14 @@ begin
 							end if;
 							
 						when stop =>
-							if(i>=7) then
+							--if(i>=7) then
 								i<=0;
 								tx_done_tick<='1';
 								tx<='1';
 								if(s_tick='1') then
 									curr_state<=idle;
 								end if;
-							end if;
+							--end if;
 							
 						when others =>
 							NULL;
